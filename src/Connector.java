@@ -7,7 +7,6 @@ public class Connector {
 	
 	private Connection connection = null;
 	private Statement statement = null;
-	private ResultSet resultset = null;
 	
 	public Connection conectar() {
 		String returning = null;
