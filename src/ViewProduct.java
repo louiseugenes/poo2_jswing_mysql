@@ -3,7 +3,9 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,7 +40,7 @@ public class ViewProduct extends JFrame {
 		product = new Product();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 609, 402);
+		setBounds(100, 100, 621, 433);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -54,7 +56,7 @@ public class ViewProduct extends JFrame {
                 }
             }
         });
-		listBtn.setBounds(10, 46, 89, 23);
+		listBtn.setBounds(10, 75, 89, 23);
 		contentPane.add(listBtn);
 		
 		JButton newBtn = new JButton("Novo");
@@ -71,7 +73,7 @@ public class ViewProduct extends JFrame {
                 }
             }
         });
-        newBtn.setBounds(109, 11, 89, 23);
+        newBtn.setBounds(10, 24, 89, 23);
         contentPane.add(newBtn);
 
         JButton eventBtn = new JButton("Atualizar");
@@ -94,7 +96,7 @@ public class ViewProduct extends JFrame {
                 }
             }
         });
-        eventBtn.setBounds(208, 11, 89, 23);
+        eventBtn.setBounds(494, 109, 99, 23);
         contentPane.add(eventBtn);
 
         JButton deleteBtn = new JButton("Apagar");
@@ -114,30 +116,51 @@ public class ViewProduct extends JFrame {
                 }
             }
         });
-        deleteBtn.setBounds(307, 11, 89, 23);
+        deleteBtn.setBounds(494, 140, 99, 23);
         contentPane.add(deleteBtn);
 
         txPesquisa = new JTextField();
-        txPesquisa.setBounds(119, 47, 374, 20);
+        txPesquisa.setBounds(114, 76, 374, 20);
         contentPane.add(txPesquisa);
         txPesquisa.setColumns(10);
+        
+        JRadioButton idRadioButton = new JRadioButton("ID");
+        idRadioButton.setBounds(438, 50, 50, 20);
+        contentPane.add(idRadioButton);
 
+        JRadioButton descricaoRadioButton = new JRadioButton("Descrição");
+        descricaoRadioButton.setBounds(336, 49, 100, 20);
+        descricaoRadioButton.setSelected(true);
+        contentPane.add(descricaoRadioButton);
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(idRadioButton);
+        buttonGroup.add(descricaoRadioButton);
+        
         JButton searchBtn = new JButton("Pesquisar");
         searchBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String descricao = txPesquisa.getText();
+                String pesquisa = txPesquisa.getText();
+                boolean porId = idRadioButton.isSelected();
                 try {
-                    searchProducts(descricao);
+                    if (porId) {
+                        int id = Integer.parseInt(pesquisa);
+                        searchProductsById(id);
+                    } else {
+                        searchProducts(pesquisa);
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Por favor, insira um ID válido.");
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
             }
         });
-        searchBtn.setBounds(494, 46, 89, 23);
+        searchBtn.setBounds(494, 75, 99, 23);
         contentPane.add(searchBtn);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(10, 76, 570, 274);
+        scrollPane.setBounds(10, 109, 478, 274);
         contentPane.add(scrollPane);
 
         table = new JTable();
@@ -161,6 +184,21 @@ public class ViewProduct extends JFrame {
 
     private void searchProducts(String descricao) throws SQLException {
         ResultSet rs = product.searchProduct(descricao);
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
+        model.addColumn("Descrição");
+        model.addColumn("Preço");
+        model.addColumn("Ativo");
+
+        while (rs.next()) {
+            model.addRow(new Object[]{rs.getInt("id"), rs.getString("descricao"), rs.getDouble("preco"),
+                    rs.getBoolean("ativo")});
+        }
+        table.setModel(model);
+    }
+    
+    private void searchProductsById(int id) throws SQLException {
+        ResultSet rs = product.searchProductById(id);
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("ID");
         model.addColumn("Descrição");

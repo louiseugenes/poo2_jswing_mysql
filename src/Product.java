@@ -130,5 +130,22 @@ public class Product {
 
 	        return rs;
 	    }
+	    
+	    public ResultSet searchProductById(int id) {
+	        Connection con = null;
+	        PreparedStatement pstmt = null;
+	        ResultSet rs = null;
+
+	        try {
+	            con = objcon.conectar();
+	            pstmt = con.prepareStatement("SELECT * FROM produtos WHERE id = ?");
+	            pstmt.setInt(1, id);
+	            rs = pstmt.executeQuery();
+	        } catch (SQLException ex) {
+	            ex.printStackTrace();
+	        }
+
+	        return rs;
+	    }
 
 }
